@@ -79,7 +79,7 @@ export default function Signup() {
       data.append('profilePicture', {
         uri: profilePicture,
         type: 'image/jpeg',
-        name: 'profile.jpg',
+        name: 'profile',
       });
       setSpinner(true);
       const res = await axios.post('https://api.apptask.thekaspertech.com/api/users/register', data, {
@@ -100,7 +100,7 @@ export default function Signup() {
     } catch (error: any) {
       setSpinner(false);
       ToastAndroid.showWithGravity(
-        'something went wrong, please try again',
+        'something went wrong, maybe image is too large',
         ToastAndroid.LONG,
         ToastAndroid.TOP
       );
@@ -128,7 +128,7 @@ export default function Signup() {
   
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         const options = {
-          mediaType: 'photo' as const,
+          mediaType: 'photo' as any,
         };
         launchCamera(options, (response: ImagePickerResponse) => {
           if (!response.didCancel) {
@@ -159,7 +159,7 @@ export default function Signup() {
   const handleUploadImage = async () => {
     try {
       const options = {
-        mediaType: 'photo' as const,
+        mediaType: 'photo' as any,
       };
 
       launchImageLibrary(options, (response: ImagePickerResponse) => {
@@ -194,7 +194,7 @@ export default function Signup() {
         <RBSheet
           ref={refRBSheet}
           height={550}
-          closeOnDragDown={false}
+          closeOnDragDown={true}
           closeOnPressMask={false}
           customStyles={{
             wrapper: {

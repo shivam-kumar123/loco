@@ -98,7 +98,7 @@ export default function Login() {
         <RBSheet
           ref={refRBSheet}
           height={400} 
-          closeOnDragDown={false}
+          closeOnDragDown={true}
           closeOnPressMask={false}
           customStyles={{
             wrapper: {
