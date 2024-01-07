@@ -72,6 +72,9 @@ If you can't get this to work, see the [Troubleshooting](https://reactnative.dev
 
 To learn more about React Native, take a look at the following resources:
 
+# Download APK
+-[APK Google Drive](https://drive.google.com/file/d/1R9zHwGDUbf-_qbRoaVdJlOHCL2vuWhDo/view?usp=sharing)
+
 - [React Native Website](https://reactnative.dev) - learn more about React Native.
 - [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
 - [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
