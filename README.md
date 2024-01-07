@@ -1,5 +1,8 @@
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
+# Download APK
+-[APK Google Drive](https://drive.google.com/file/d/1R9zHwGDUbf-_qbRoaVdJlOHCL2vuWhDo/view?usp=sharing)
+
 # Getting Started
 
 >**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
@@ -71,9 +74,6 @@ If you can't get this to work, see the [Troubleshooting](https://reactnative.dev
 # Learn More
 
 To learn more about React Native, take a look at the following resources:
-
-# Download APK
--[APK Google Drive](https://drive.google.com/file/d/1R9zHwGDUbf-_qbRoaVdJlOHCL2vuWhDo/view?usp=sharing)
 
 - [React Native Website](https://reactnative.dev) - learn more about React Native.
 - [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
