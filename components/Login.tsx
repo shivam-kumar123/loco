@@ -1,17 +1,88 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, ImageBackground, StyleSheet, TextInput, TouchableOpacity, Image } from "react-native";
+import { View, Text, ImageBackground, StyleSheet, TextInput, TouchableOpacity, Image, ActivityIndicator, ToastAndroid } from "react-native";
 import RBSheet from "@nonam4/react-native-bottom-sheet";
+import { useNavigation, useRoute } from '@react-navigation/native';
+import axios from "axios";
+import { PermissionsAndroid } from "react-native";
 
-export default function Example() {
+export default function Login() {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { setAuthToken, setUserEmail, setUserPassword } = route.params;
+
   const refRBSheet = useRef<RBSheet | null>(null);
 
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [spinner, setSpinner] = useState<boolean>(false);
 
-  const handleLogin = () => {
-    console.log("Email: ", email);
-    console.log("Password: ", password);
-    // make api call and send data to backend
+  const getMobileLocationPermission = async () => {
+    try {
+        const result = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        );
+
+        if (result === 'granted') {
+          console.info('Location permission granted');
+          return true;
+        } else {
+          console.error('Location permission denied. Redirecting to home page.');
+          return false;
+        }
+    } catch (error) {
+      console.error('Error requesting location permission:', error);
+      return false;
+    }
+};
+
+  const handleLogin = async () => {
+    try {
+      if (email === '') {
+        ToastAndroid.showWithGravity(
+          'enter valid email',
+          ToastAndroid.LONG,
+          ToastAndroid.TOP
+        );
+        return;
+      }
+      if (password.length < 5 || password === '') {
+        ToastAndroid.showWithGravity(
+          'enter valid password',
+          ToastAndroid.LONG,
+          ToastAndroid.TOP
+        );
+        return;
+      }
+      const data = {
+        email: email,
+        password: password,
+      };
+      setUserPassword(password);
+      setSpinner(true);
+      const res = await axios.post('https://api.apptask.thekaspertech.com/api/users/login', data);
+      setAuthToken(res.data.token);
+      setUserEmail(res.data.user.email);
+      const permission = await getMobileLocationPermission();
+      if (permission) {
+        navigation.navigate('Profile');
+      } else {
+        navigation.navigate('Home');
+      }
+    } catch (error: any) {
+      setSpinner(false);
+      ToastAndroid.showWithGravity(
+        'Something went wrong',
+        ToastAndroid.LONG,
+        ToastAndroid.TOP
+      );
+      if (error.response) {
+        console.error('Server responded with non-2xx status:', error.response.status);
+      } else if (error.request) {
+        console.error('No response received from the server:', error.request);
+      } else {
+        console.error('Error setting up the request:', error.message);
+      }
+    }
   };
 
   useEffect(() => {
@@ -27,7 +98,7 @@ export default function Example() {
         <RBSheet
           ref={refRBSheet}
           height={400} 
-          closeOnDragDown={true}
+          closeOnDragDown={false}
           closeOnPressMask={false}
           customStyles={{
             wrapper: {
@@ -59,12 +130,16 @@ export default function Example() {
               placeholderTextColor={'black'}
               onChangeText={pswd => setPassword(pswd)}
             />
-            <TouchableOpacity
-              style={styles.btn}
-              onPress={handleLogin}
-            >
-              <Text style={styles.btnText}>Login</Text>
-            </TouchableOpacity>
+            {
+              spinner ? 
+              <ActivityIndicator size="large" color="#fa7f05" style={styles.spinner} /> :
+                <TouchableOpacity
+                style={styles.btn}
+                onPress={handleLogin}
+              >
+                <Text style={styles.btnText}>Login</Text>
+              </TouchableOpacity>
+            }
           </View>
         </RBSheet>
       </View>
@@ -125,5 +200,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     color: '#616362',
     borderRadius: 25,
+  },
+  spinner: {
+    marginTop: 25,
   }
 });

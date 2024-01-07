@@ -3,6 +3,7 @@ import { SafeAreaView, Text, TouchableOpacity, StyleSheet, Image } from 'react-n
 import { useNavigation } from '@react-navigation/native';
 
 const Home = () => {
+  
   const navigation = useNavigation();
 
   return (

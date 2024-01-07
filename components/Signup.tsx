@@ -1,28 +1,121 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, ImageBackground, StyleSheet, TextInput, TouchableOpacity, Image, PermissionsAndroid } from "react-native";
+import 
+{ View, 
+  Text, 
+  ImageBackground, 
+  StyleSheet, 
+  TextInput, 
+  TouchableOpacity, 
+  Image, 
+  PermissionsAndroid, 
+  ToastAndroid,
+  ActivityIndicator,
+} from "react-native";
 import RBSheet from "@nonam4/react-native-bottom-sheet";
-import ImagePicker, { ImagePickerResponse, launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { ImagePickerResponse, launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { useNavigation } from '@react-navigation/native';
+import axios from "axios";
 
-export default function Example() {
+export default function Signup() {
+  const navigation = useNavigation();
   const refRBSheet = useRef<RBSheet | null>(null);
 
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [age, setAge] = useState<string>('');
-  const [userImage, setUserImage] = useState<string>('');
+  const [profilePicture, setProfilePicture] = useState<string>('');
+  const [spinner, setSpinner] = useState<boolean>(false);
 
-  const handleLogin = () => {
-    console.log("Name: ", name);
-    console.log("Email: ", email);
-    console.log("Password: ", password);
-    console.log("Age: ", age);
-    // make api call and send data to backend
+  const handleCreateAccount = async () => {
+  
+    if (name === '') {
+      ToastAndroid.showWithGravity(
+        'name is required',
+        ToastAndroid.LONG,
+        ToastAndroid.TOP
+      );
+      return;
+    }
+    if (email === '') {
+      ToastAndroid.showWithGravity(
+        'email is required',
+        ToastAndroid.LONG,
+        ToastAndroid.TOP
+      );
+      return;
+    }
+    if (password.length < 5 || password === '') {
+      ToastAndroid.showWithGravity(
+        'minimum password length is 5',
+        ToastAndroid.LONG,
+        ToastAndroid.TOP
+      );
+      return;
+    }
+    if (age === '') {
+      ToastAndroid.showWithGravity(
+        'age is required',
+        ToastAndroid.LONG,
+        ToastAndroid.TOP
+      );
+      return;
+    }
+    if (profilePicture === '') {
+      ToastAndroid.showWithGravity(
+        'profile picture is required',
+        ToastAndroid.LONG,
+        ToastAndroid.TOP
+      );
+      return;
+    }
+  
+    try {
+      const data = new FormData();
+      data.append('name', name);
+      data.append('email', email);
+      data.append('password', password);
+      data.append('age', age);  
+      data.append('profilePicture', {
+        uri: profilePicture,
+        type: 'image/jpeg',
+        name: 'profile.jpg',
+      });
+      setSpinner(true);
+      const res = await axios.post('https://api.apptask.thekaspertech.com/api/users/register', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      if (res.status === 200) {
+        navigation.navigate('Login');
+        if (name === '') {
+          ToastAndroid.showWithGravity(
+            'user registered successfully, please login',
+            ToastAndroid.LONG,
+            ToastAndroid.TOP
+          );
+        }
+      }
+    } catch (error: any) {
+      setSpinner(false);
+      ToastAndroid.showWithGravity(
+        'something went wrong, please try again',
+        ToastAndroid.LONG,
+        ToastAndroid.TOP
+      );
+      if (error.response) {
+        console.error('Server responded with non-2xx status:', error.response.status);
+      } else if (error.request) {
+        console.error('No response received from the server:', error.request);
+      } else {
+        console.error('Error setting up the request:', error.message);
+      }
+    }
   };
-
+  
   const handleTakingPicture = async () => {
     try {
-      console.log("Before requesting camera permission");
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.CAMERA,
         {
@@ -32,30 +125,36 @@ export default function Example() {
           buttonPositive: "OK",
         }
       );
-      console.log("After requesting camera permission", granted);
   
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         const options = {
           mediaType: 'photo' as const,
         };
-        console.log("Before launching camera");
         launchCamera(options, (response: ImagePickerResponse) => {
-          console.log("Image Response", response);
           if (!response.didCancel) {
-            const userImageUri = response.assets?.[0]?.uri;
-            if (userImageUri) {
-              setUserImage(userImageUri);
+            const profilePictureUri = response.assets?.[0]?.uri;
+            if (profilePictureUri) {
+              setProfilePicture(profilePictureUri);
             }
           }
         });
       } else {
-        console.log("Camera permission denied");
+        ToastAndroid.showWithGravity(
+          'camera permission denied',
+          ToastAndroid.LONG,
+          ToastAndroid.TOP
+        );
+        console.error("Camera permission denied");
       }
     } catch (error) {
+      ToastAndroid.showWithGravity(
+        'something went wrong',
+        ToastAndroid.LONG,
+        ToastAndroid.TOP
+      );
       console.error('Error handling camera permission:', error);
     }
   };
-  
 
   const handleUploadImage = async () => {
     try {
@@ -64,17 +163,20 @@ export default function Example() {
       };
 
       launchImageLibrary(options, (response: ImagePickerResponse) => {
-        console.log("Image Response", response);
         if (!response.didCancel) {
-          // Check if 'uri' property exists before accessing it
-          const userImageUri = response.assets?.[0]?.uri;
+          const profilePictureUri = response.assets?.[0]?.uri;
 
-          if (userImageUri) {
-            setUserImage(userImageUri);
+          if (profilePictureUri) {
+            setProfilePicture(profilePictureUri);
           }
         }
       });
     } catch (error) {
+      ToastAndroid.showWithGravity(
+        'something went wrong',
+        ToastAndroid.LONG,
+        ToastAndroid.TOP
+      );
       console.error('Error launching image picker:', error);
     }
   };
@@ -92,7 +194,7 @@ export default function Example() {
         <RBSheet
           ref={refRBSheet}
           height={550}
-          closeOnDragDown={true}
+          closeOnDragDown={false}
           closeOnPressMask={false}
           customStyles={{
             wrapper: {
@@ -104,15 +206,15 @@ export default function Example() {
             container: {
               borderTopLeftRadius: 20,
               borderTopRightRadius: 20,
-            }
+            },
           }}
         >
           <View>
             <Text style={styles.text}>Signup</Text>
             <Text style={styles.textSmall}>Profile Picture</Text>
             <View style={styles.profileContainer}>
-              {userImage ? (
-                <Image source={{ uri: userImage }} style={styles.profileIcon} />
+              {profilePicture ? (
+                <Image source={{ uri: profilePicture }} style={styles.profileIcon} />
               ) : (
                 <Image source={require('./profilePic.png')} style={styles.profileIcon} />
               )}
@@ -155,12 +257,16 @@ export default function Example() {
               placeholderTextColor={'black'}
               onChangeText={text => setAge(text)}
             />
-            <TouchableOpacity
-              style={styles.btn}
-              onPress={handleLogin}
-            >
-              <Text style={styles.btnText}>Create Account</Text>
-            </TouchableOpacity>
+            {
+              spinner ? 
+              <ActivityIndicator size="large" color="#fa7f05" style={styles.spinner} /> :
+              <TouchableOpacity
+                style={styles.btn}
+                onPress={handleCreateAccount}
+              >
+                <Text style={styles.btnText}>Create Account</Text>
+              </TouchableOpacity>
+            }
           </View>
         </RBSheet>
       </View>
@@ -245,5 +351,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     color: '#616362',
     borderRadius: 25,
+  },
+  spinner: {
+    marginTop: 15,
   }
 });
