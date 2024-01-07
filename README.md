@@ -1,7 +1,7 @@
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
 # Download APK
--[APK Google Drive](https://drive.google.com/file/d/1R9zHwGDUbf-_qbRoaVdJlOHCL2vuWhDo/view?usp=sharing)
+-[Download APK From Google Drive](https://drive.google.com/file/d/1R9zHwGDUbf-_qbRoaVdJlOHCL2vuWhDo/view?usp=sharing)
 
 # Getting Started
 
